@@ -1,67 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 
-function CreateTaskComponent() {
-  const navigate = useNavigate();
+function EditTaskComponent() {
+  const { id } = useParams();
+  const history = useHistory();
+  const [task, setTask] = useState({});
   const [inputs, setInputs] = useState({});
 
+  useEffect(() => {
+    fetchTask();
+  }, []);
+
+  const fetchTask = () => {
+    axios.get(`http://localhost:80/api/task/${id}`)
+      .then((response) => {
+        setTask(response.data);
+        setInputs(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const name = event.target.name;
+    const value = event.target.value;
     setInputs((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    axios
-      .post("http://localhost:80/api/task/save", inputs)
-      .then(function (response) {
+    axios.put(`http://localhost:80/api/task/${id}`, inputs)
+      .then((response) => {
         console.log(response.data);
-        navigate("/");
+        history.push('/');
       })
-      .catch(function (error) {
-        console.log("Error creating task:", error);
+      .catch((error) => {
+        console.log(error);
       });
   };
 
   return (
     <div>
-      <h1>Create Task</h1>
+      <h1>Edit Task</h1>
       <form onSubmit={handleSubmit} method="POST">
         <label htmlFor="title">Title:</label>
-        <input
-          type="text"
-          id="title"
-          name="Title"
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <br />
+        <input type="text" id="title" name="title" value={inputs.title || ''} onChange={handleChange} required /><br /><br />
 
         <label htmlFor="endDate">End Date:</label>
-        <input
-          type="datetime-local"
-          id="endDate"
-          name="EndDate"
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <br />
+        <input type="datetime-local" id="endDate" name="endDate" value={inputs.endDate || ''} onChange={handleChange} required /><br /><br />
 
-        <label htmlFor="description">Description:</label>
-        <br />
-        <textarea
-          id="description"
-          name="Description"
-          onChange={handleChange}
-          rows="4"
-          cols="50"
-        ></textarea>
-        <br />
-        <br />
+        <label htmlFor="description">Description:</label><br />
+        <textarea id="description" name="description" value={inputs.description || ''} onChange={handleChange} rows="4" cols="50"></textarea><br /><br />
 
         <input type="submit" value="Submit" />
       </form>
@@ -69,4 +61,4 @@ function CreateTaskComponent() {
   );
 }
 
-export default CreateTaskComponent;
+export default EditTaskComponent;
