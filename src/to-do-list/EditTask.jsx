@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 function EditTaskComponent() {
   const { id } = useParams();
-  const history = useHistory();
   const [task, setTask] = useState({});
   const [inputs, setInputs] = useState({});
 
@@ -30,12 +29,12 @@ function EditTaskComponent() {
   };
 
   const handleSubmit = (event) => {
+    console.log(inputs)
     event.preventDefault();
 
     axios.put(`http://localhost:80/api/task/${id}`, inputs)
       .then((response) => {
         console.log(response.data);
-        history.push('/');
       })
       .catch((error) => {
         console.log(error);
